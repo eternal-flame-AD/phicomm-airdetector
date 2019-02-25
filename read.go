@@ -15,9 +15,7 @@ type packet []byte
 type pType byte
 
 const (
-	connect      pType = 0x03
-	measUnstable pType = 0x4f
-	measStable   pType = 0x50
+	connect pType = 0x03
 )
 
 var tail = [6]byte{0xff, 0x23, 0x45, 0x4e, 0x44, 0x23}
@@ -44,7 +42,6 @@ type Reading struct {
 	Temperature float64
 	HCHO        float64
 	PM25        int
-	IsStable    bool
 }
 
 func (c packet) MacAddr() (res [6]byte) {
@@ -58,7 +55,7 @@ func (c packet) Type() pType {
 
 func (c packet) IsReading() bool {
 	t := c.Type()
-	return t == measStable || t == measUnstable
+	return t >= 0x4e && t <= 0x50
 }
 
 func (c packet) IsValid() bool {
@@ -78,7 +75,6 @@ func (c packet) Reading() (*Reading, error) {
 	if err != nil {
 		return nil, err
 	}
-	read.IsStable = c.Type() == measStable
 	return &read, nil
 }
 
@@ -116,7 +112,7 @@ func (c deviceConnection) handle(output chan<- ReadingWithConnInfo) {
 		} else if c.deviceMAC != data.MacAddr() {
 			log.Printf("Received data packet of inconsistent mac address: expected %x got %x", c.deviceMAC, data.MacAddr())
 		}
-		if t := data.Type(); t != connect && t != measStable && t != measUnstable {
+		if t := data.Type(); t != connect && !data.IsReading() {
 			log.Printf("Received unknown data packet of type %x, len %d", data.Type(), len(data))
 		}
 

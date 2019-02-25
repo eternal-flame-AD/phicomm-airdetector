@@ -15,7 +15,6 @@ import (
 
 var prefix string
 var metricAddr string
-var acceptUnstable bool
 
 var metrics = make(map[[6]byte]readingWithTimestamp)
 var metricsLock = sync.RWMutex{}
@@ -44,12 +43,10 @@ type readingWithTimestamp struct {
 func init() {
 	p := flag.String("p", "airdetector", "metric prefix")
 	m := flag.String("m", ":9100", "metrics address")
-	unst := flag.Bool("u", false, "accept unstable readings")
 	flag.Parse()
 
 	prefix = *p
 	metricAddr = *m
-	acceptUnstable = *unst
 }
 
 func recordReading(meas airdetector.ReadingWithConnInfo) {
@@ -70,10 +67,7 @@ func main() {
 			panic(err)
 		}
 		for meas := range measurements {
-			fmt.Printf("%s: device %x => PM25:%d HCHO:%.2f T:%.1f H:%.1f Stable:%t\n", time.Now().Format("2006-01-02T15:04:05-0700"), meas.DeviceMAC, meas.PM25, meas.HCHO, meas.Temperature, meas.Humidity, meas.IsStable)
-			if !meas.IsStable && !acceptUnstable {
-				continue
-			}
+			fmt.Printf("%s: device %x => PM25:%d HCHO:%.2f T:%.1f H:%.1f\n", time.Now().Format("2006-01-02T15:04:05-0700"), meas.DeviceMAC, meas.PM25, meas.HCHO, meas.Temperature, meas.Humidity)
 			recordReading(meas)
 		}
 	}()
