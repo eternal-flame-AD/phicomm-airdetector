@@ -29,10 +29,10 @@ var metricHeadTpl = template.Must(template.New("metric_head").Parse(strings.Trim
 # TYPE {{.Prefix}}hcho gauge
 `)))
 var singlemetricTpl = template.Must(template.New("metric").Parse(strings.TrimSpace(`
-{{.Prefix}}humidity{device={{.MAC}}} {{.R.Reading.Humidity}} {{.R.Timestamp}}
-{{.Prefix}}temperature{device={{.MAC}}}  {{.R.Reading.Temperature}} {{.R.Timestamp}}
-{{.Prefix}}pm25{device={{.MAC}}}  {{.R.Reading.PM25}} {{.R.Timestamp}}
-{{.Prefix}}hcho{device={{.MAC}}}  {{.R.Reading.HCHO}} {{.R.Timestamp}}
+{{.Prefix}}humidity{device="{{.MAC}}"} {{.R.Reading.Humidity}} {{.R.Timestamp}}
+{{.Prefix}}temperature{device="{{.MAC}}"}  {{.R.Reading.Temperature}} {{.R.Timestamp}}
+{{.Prefix}}pm25{device="{{.MAC}}"}  {{.R.Reading.PM25}} {{.R.Timestamp}}
+{{.Prefix}}hcho{device="{{.MAC}}"}  {{.R.Reading.HCHO}} {{.R.Timestamp}}
 `)))
 
 type readingWithTimestamp struct {
